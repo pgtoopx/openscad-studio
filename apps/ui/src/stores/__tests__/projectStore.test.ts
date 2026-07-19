@@ -486,3 +486,53 @@ describe('computeOrphanedAncestors', () => {
     // a should NOT be added because a/other is still there
   });
 });
+
+// ── addFiles ──────────────────────────────────────────────────────────────────
+
+describe('addFiles', () => {
+  it('adds multiple files and increments contentVersion', () => {
+    const store = createVirtualProject();
+    const versionBefore = store.getState().contentVersion;
+
+    store.getState().addFiles({
+      'lib/math.scad': 'module m() {}',
+      'lib/utils.scad': 'module u() {}',
+    });
+
+    const state = store.getState();
+    expect(state.files['lib/math.scad']).toBeDefined();
+    expect(state.files['lib/math.scad'].content).toBe('module m() {}');
+    expect(state.files['lib/math.scad'].isDirty).toBe(true);
+
+    expect(state.files['lib/utils.scad']).toBeDefined();
+    expect(state.files['lib/utils.scad'].content).toBe('module u() {}');
+
+    expect(state.contentVersion).toBe(versionBefore + 1);
+  });
+
+  it('removes ancestor empty folders when files are added', () => {
+    const store = createVirtualProject();
+    store.getState().addFolder('lib');
+    expect(store.getState().emptyFolders).toContain('lib');
+
+    store.getState().addFiles({
+      'lib/math.scad': 'module m() {}',
+    });
+
+    expect(store.getState().emptyFolders).not.toContain('lib');
+  });
+
+  it('does not overwrite existing files', () => {
+    const store = createVirtualProject();
+    store.getState().addFile('existing.scad', 'original');
+
+    store.getState().addFiles({
+      'existing.scad': 'new',
+      'new.scad': 'new',
+    });
+
+    const state = store.getState();
+    expect(state.files['existing.scad'].content).toBe('original');
+    expect(state.files['new.scad'].content).toBe('new');
+  });
+});

@@ -58,6 +58,9 @@ export interface ProjectStoreActions {
   /** Add a new file to the project. No-op if the path already exists. */
   addFile: (relativePath: string, content: string, options?: { isVirtual?: boolean }) => void;
 
+  /** Add multiple files to the project. No-op if a file path already exists. */
+  addFiles: (files: Record<string, string>, options?: { isVirtual?: boolean }) => void;
+
   /** Update the content of an existing file. No-op if the file doesn't exist. */
   updateFileContent: (relativePath: string, content: string) => void;
 

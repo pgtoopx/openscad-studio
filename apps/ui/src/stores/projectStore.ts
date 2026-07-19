@@ -100,6 +100,35 @@ export function createProjectStore(initialState?: ProjectStoreState) {
       });
     },
 
+    addFiles: (files, options) => {
+      const state = get();
+      const isVirtual = options?.isVirtual ?? state.projectRoot === null;
+
+      let changed = false;
+      const newFiles = { ...state.files };
+      let newEmptyFolders = [...state.emptyFolders];
+
+      for (const [relativePath, content] of Object.entries(files)) {
+        if (relativePath in state.files) continue;
+
+        newFiles[relativePath] = createProjectFile(content, {
+          isVirtual,
+          isDirty: true,
+        });
+
+        newEmptyFolders = newEmptyFolders.filter((f) => !relativePath.startsWith(f + '/'));
+        changed = true;
+      }
+
+      if (!changed) return;
+
+      set({
+        files: newFiles,
+        emptyFolders: newEmptyFolders,
+        contentVersion: state.contentVersion + 1,
+      });
+    },
+
     updateFileContent: (relativePath, content) => {
       const state = get();
       const file = state.files[relativePath];

@@ -34,15 +34,19 @@ console.log(`[download-opm] Host target detected: ${hostTarget}`);
 
 const targetsToDownload = [hostTarget];
 
-if (hostTarget === 'x86_64-unknown-linux-gnu' && !targetsToDownload.includes('x86_64-pc-windows-msvc')) {
+if (
+  hostTarget === 'x86_64-unknown-linux-gnu' &&
+  !targetsToDownload.includes('x86_64-pc-windows-msvc')
+) {
   targetsToDownload.push('x86_64-pc-windows-msvc');
 }
 
 async function run() {
   for (const target of targetsToDownload) {
-    const isWindows = target.includes('windows') || target.includes('win32') || target.includes('msvc');
+    const isWindows =
+      target.includes('windows') || target.includes('win32') || target.includes('msvc');
     const isLinux = target.includes('linux');
-    
+
     const binaryName = isWindows ? `opm-${target}.exe` : `opm-${target}`;
     const destPath = path.join(BINARIES_DIR, binaryName);
 
@@ -60,7 +64,9 @@ async function run() {
       archiveName = `opm_${OPM_VERSION}_windows_amd64.tar.gz`;
       downloadUrl = `https://github.com/Akrobate/openscad-package-manager/releases/download/${OPM_VERSION}/${archiveName}`;
     } else {
-      console.warn(`[download-opm] OPM binary not officially available for target ${target}. Skipping.`);
+      console.warn(
+        `[download-opm] OPM binary not officially available for target ${target}. Skipping.`
+      );
       continue;
     }
 
@@ -70,12 +76,12 @@ async function run() {
     try {
       await downloadFile(downloadUrl, archivePath);
       console.log(`[download-opm] Extracting ${archivePath}...`);
-      
+
       execSync(`tar -xzf "${archivePath}" -C "${BINARIES_DIR}"`);
-      
+
       const extractedName = isWindows ? 'opm.exe' : 'opm';
       const extractedPath = path.join(BINARIES_DIR, extractedName);
-      
+
       if (fs.existsSync(extractedPath)) {
         fs.renameSync(extractedPath, destPath);
         if (!isWindows) {
@@ -100,27 +106,29 @@ async function run() {
 function downloadFile(url, dest) {
   return new Promise((resolve, reject) => {
     const file = fs.createWriteStream(dest);
-    
+
     const request = (targetUrl) => {
-      https.get(targetUrl, (response) => {
-        if (response.statusCode === 302 || response.statusCode === 301) {
-          request(response.headers.location);
-          return;
-        }
-        if (response.statusCode !== 200) {
-          reject(new Error(`Failed to download: Status code ${response.statusCode}`));
-          return;
-        }
-        response.pipe(file);
-        file.on('finish', () => {
-          file.close(resolve);
+      https
+        .get(targetUrl, (response) => {
+          if (response.statusCode === 302 || response.statusCode === 301) {
+            request(response.headers.location);
+            return;
+          }
+          if (response.statusCode !== 200) {
+            reject(new Error(`Failed to download: Status code ${response.statusCode}`));
+            return;
+          }
+          response.pipe(file);
+          file.on('finish', () => {
+            file.close(resolve);
+          });
+        })
+        .on('error', (err) => {
+          fs.unlink(dest, () => {});
+          reject(err);
         });
-      }).on('error', (err) => {
-        fs.unlink(dest, () => {});
-        reject(err);
-      });
     };
-    
+
     request(url);
   });
 }

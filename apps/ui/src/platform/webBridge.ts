@@ -301,10 +301,62 @@ export class WebBridge implements PlatformBridge {
   }
 
   async installProjectDependencies(): Promise<any> {
-    return {
-      success: false,
-      output: '',
-      error: 'Dependency management is only available in the desktop app.',
-    };
+    const { getProjectStore } = await import('../stores/projectStore');
+    const fflate = await import('fflate');
+    const state = getProjectStore().getState();
+    const manifestFile = state.files['openscad.json'];
+
+    if (!manifestFile) {
+      return { success: true, output: 'No openscad.json found.' };
+    }
+
+    let manifest;
+    try {
+      manifest = JSON.parse(manifestFile.content);
+    } catch {
+      return { success: false, error: 'Failed to parse openscad.json' };
+    }
+
+    if (!manifest.dependencies || Object.keys(manifest.dependencies).length === 0) {
+      return { success: true, output: 'No dependencies to install.' };
+    }
+
+    try {
+      const catalogRes = await fetch('/libraries/catalog.json');
+      if (!catalogRes.ok) {
+        return { success: false, error: 'Failed to fetch catalog.' };
+      }
+      const catalog = await catalogRes.json();
+
+      const extractedFiles: Record<string, string> = {};
+      const decoder = new TextDecoder();
+
+      for (const [name, _] of Object.entries(manifest.dependencies)) {
+        if (!catalog[name]) {
+          return { success: false, error: `Dependency ${name} not found in catalog` };
+        }
+
+        const zipRes = await fetch(`/libraries/${name}.zip`);
+        if (!zipRes.ok) {
+          return { success: false, error: `Failed to download ${name}.zip` };
+        }
+
+        const buffer = await zipRes.arrayBuffer();
+        const unzipped = fflate.unzipSync(new Uint8Array(buffer));
+
+        for (const [path, data] of Object.entries(unzipped)) {
+          if (path.includes('.git/')) continue;
+          if (path.endsWith('.scad') || path.endsWith('.h')) {
+            extractedFiles[path] = decoder.decode(data);
+          }
+        }
+      }
+
+      getProjectStore().getState().addFiles(extractedFiles);
+
+      return { success: true, output: 'Dependencies installed.' };
+    } catch (e: any) {
+      return { success: false, error: e.message || 'Unknown error' };
+    }
   }
 }
