@@ -55,6 +55,8 @@ export interface PrivacySettings {
 export interface ProjectSettings {
   /** User-configured base directory for new projects. Empty string = use platform default. */
   defaultProjectDirectory: string;
+  /** Custom path to the OpenSCAD Package Manager (OPM) executable */
+  opmCustomPath?: string;
 }
 
 export interface McpSettings {

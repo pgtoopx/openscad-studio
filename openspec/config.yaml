@@ -1,0 +1,21 @@
+project: openscad-studio
+mode: openspec
+strict_tdd: true
+stack:
+  - pnpm
+  - react
+  - vite
+  - tailwindcss
+  - tauri
+  - rust
+  - cloudflare pages
+testing:
+  runner:
+    - jest (unit)
+    - playwright (e2e)
+  linters:
+    - eslint
+    - tsc (type-check)
+  formatters:
+    - prettier
+    - cargo fmt

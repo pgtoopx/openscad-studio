@@ -52,3 +52,6 @@ apps/ui/src-tauri/binaries/OpenSCAD.app
 
 playwright-report/
 test-results/
+
+# OPM dependencies
+openscad_modules/

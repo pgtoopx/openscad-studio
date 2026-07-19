@@ -42,6 +42,16 @@ export class NativeRenderService implements IRenderService {
   private disposed = false;
   private version: string | null = null;
 
+  private supportsBackend(): boolean {
+    if (!this.version) return true;
+    const match = this.version.match(/(\d{4})\.(\d{2})/);
+    if (match) {
+      const year = parseInt(match[1], 10);
+      if (year < 2022) return false;
+    }
+    return true;
+  }
+
   /**
    * Initialize: discover the OpenSCAD binary and verify it works.
    */
@@ -121,8 +131,10 @@ export class NativeRenderService implements IRenderService {
     const kind: 'mesh' | 'svg' = is3d ? 'mesh' : 'svg';
 
     const args = ['/input.scad', '-o', outputPath];
-    if (backend === 'manifold') args.push('--backend=manifold');
-    else if (backend === 'cgal') args.push('--backend=cgal');
+    if (this.supportsBackend()) {
+      if (backend === 'manifold') args.push('--backend=manifold');
+      else if (backend === 'cgal') args.push('--backend=cgal');
+    }
 
     const result = await this.invokeRender(
       code,
@@ -169,8 +181,10 @@ export class NativeRenderService implements IRenderService {
     const outputPath = `/output.${format}`;
     const args = ['/input.scad', '-o', outputPath];
 
-    if (backend === 'manifold') args.push('--backend=manifold');
-    else if (backend === 'cgal') args.push('--backend=cgal');
+    if (this.supportsBackend()) {
+      if (backend === 'manifold') args.push('--backend=manifold');
+      else if (backend === 'cgal') args.push('--backend=cgal');
+    }
 
     if (format === 'stl') {
       args.push('--export-format=binstl');
@@ -217,7 +231,10 @@ export class NativeRenderService implements IRenderService {
 
     const runSyntaxCheck = async (view: '2d' | '3d') => {
       const outputPath = view === '3d' ? '/output.stl' : '/output.svg';
-      const args = ['/input.scad', '-o', outputPath, '--backend=manifold'];
+      const args = ['/input.scad', '-o', outputPath];
+      if (this.supportsBackend()) {
+        args.push('--backend=manifold');
+      }
       const result = await this.invokeRender(
         code,
         args,

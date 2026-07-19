@@ -85,6 +85,7 @@ pub fn run() {
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_process::init())
+        .plugin(tauri_plugin_shell::init())
         .manage(editor_state)
         .manage(history_state)
         .manage(openscad_state)
@@ -112,6 +113,8 @@ pub fn run() {
             mcp::mcp_report_window_startup_phase,
             mcp::report_window_open_result,
             mcp::mcp_update_window_context,
+            cmd::opm::get_dependency_manager_status,
+            cmd::opm::install_project_dependencies,
         ])
         .setup(|app| {
             // Create app menu (About, Hide, Quit, etc.)

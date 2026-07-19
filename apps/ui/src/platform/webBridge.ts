@@ -292,4 +292,19 @@ export class WebBridge implements PlatformBridge {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
   }
+
+  async getDependencyManagerStatus(): Promise<any> {
+    return {
+      isAvailable: false,
+      error: 'Dependency management is only available in the desktop app.',
+    };
+  }
+
+  async installProjectDependencies(): Promise<any> {
+    return {
+      success: false,
+      output: '',
+      error: 'Dependency management is only available in the desktop app.',
+    };
+  }
 }

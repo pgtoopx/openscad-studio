@@ -1,0 +1,7 @@
+{
+  "name": "opm-project",
+  "version": "1.0.0",
+  "dependencies": {
+    "BOSL2": "https://github.com/revarbat/BOSL2.git"
+  }
+}

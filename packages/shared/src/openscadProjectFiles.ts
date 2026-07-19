@@ -1,4 +1,4 @@
-export const OPENSCAD_PROJECT_FILE_EXTENSIONS = ['scad', 'h'] as const;
+export const OPENSCAD_PROJECT_FILE_EXTENSIONS = ['scad', 'h', 'json'] as const;
 export const OPENSCAD_RENDERABLE_FILE_EXTENSIONS = ['scad'] as const;
 
 function normalizePath(path: string): string {

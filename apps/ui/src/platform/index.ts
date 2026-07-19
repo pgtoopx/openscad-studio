@@ -162,6 +162,14 @@ class BootstrapBridge implements PlatformBridge {
   async createProjectDirectory(): Promise<string | null> {
     return null;
   }
+
+  async getDependencyManagerStatus(): Promise<any> {
+    return { isAvailable: false, error: 'Not initialized' };
+  }
+
+  async installProjectDependencies(): Promise<any> {
+    return { success: false, output: '', error: 'Not initialized' };
+  }
 }
 
 const bootstrapBridge = new BootstrapBridge();

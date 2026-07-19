@@ -188,4 +188,27 @@ export interface PlatformBridge {
 
   /** Optional initialization (e.g., setting up native menu event forwarding) */
   initialize?(): Promise<void>;
+
+  // -- Dependencies (OPM) --
+
+  /** Get the status of the OpenSCAD Package Manager (OPM) */
+  getDependencyManagerStatus(customPath?: string): Promise<DependencyManagerStatus>;
+
+  /** Install dependencies for the project using OPM */
+  installProjectDependencies(
+    projectRoot: string,
+    customPath?: string
+  ): Promise<DependencyInstallResult>;
+}
+
+export interface DependencyManagerStatus {
+  isAvailable: boolean;
+  version?: string;
+  error?: string;
+}
+
+export interface DependencyInstallResult {
+  success: boolean;
+  output: string;
+  error?: string;
 }

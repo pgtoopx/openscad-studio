@@ -41,7 +41,7 @@ export async function loadWorkspaceFolder(
   dirPath: string,
   options: WorkspaceFolderLoadOptions = {}
 ): Promise<WorkspaceFolderLoadResult> {
-  let files = await platform.readDirectoryFiles(dirPath, ['scad'], true);
+  let files = await platform.readDirectoryFiles(dirPath, ['scad', 'h', 'json'], true);
   let filePaths = Object.keys(files);
   let createdDefaultFile = false;
 

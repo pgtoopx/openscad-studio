@@ -109,7 +109,7 @@ async function loadProjectFromFile(
 
   if (projectRoot && platform.capabilities.hasFileSystem) {
     try {
-      const siblings = await platform.readDirectoryFiles(projectRoot, ['scad'], true);
+      const siblings = await platform.readDirectoryFiles(projectRoot, ['scad', 'h', 'json'], true);
       for (const [relPath, siblingContent] of Object.entries(siblings)) {
         if (relPath !== relativeName) {
           files[relPath] = siblingContent;

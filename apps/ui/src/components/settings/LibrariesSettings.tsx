@@ -1,6 +1,7 @@
 import { TbFolderOpen, TbPlus, TbTrash } from 'react-icons/tb';
 import { Button, IconButton } from '../ui';
 import type { Settings } from '../../stores/settingsStore';
+import { ProjectDependenciesPanel } from './ProjectDependenciesPanel';
 import {
   SettingsCard,
   SettingsCardHeader,
@@ -152,6 +153,8 @@ export function LibrariesSettings({
           )}
         </SettingsCardSection>
       </SettingsCard>
+
+      <ProjectDependenciesPanel />
     </div>
   );
 }

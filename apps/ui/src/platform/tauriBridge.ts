@@ -294,6 +294,9 @@ export class TauriBridge implements PlatformBridge {
         for (const e of events) {
           if (typeof e.type === 'object' && ('modify' in e.type || 'create' in e.type)) {
             for (const path of e.paths) {
+              if (path.includes('/openscad_modules/') || path.includes('\\openscad_modules\\')) {
+                continue;
+              }
               if (isOpenScadProjectFilePath(path)) {
                 // Convert absolute path to relative
                 const relative = path.startsWith(dirPath + '/')
@@ -307,6 +310,9 @@ export class TauriBridge implements PlatformBridge {
           }
           if (typeof e.type === 'object' && 'remove' in e.type) {
             for (const path of e.paths) {
+              if (path.includes('/openscad_modules/') || path.includes('\\openscad_modules\\')) {
+                continue;
+              }
               if (isOpenScadProjectFilePath(path)) {
                 const relative = path.startsWith(dirPath + '/')
                   ? path.slice(dirPath.length + 1)
@@ -423,5 +429,15 @@ export class TauriBridge implements PlatformBridge {
     await listen<string>('menu:file:export', (event) => {
       eventBus.emit('menu:file:export', event.payload as import('./types').ExportFormat);
     });
+  }
+
+  async getDependencyManagerStatus(customPath?: string): Promise<any> {
+    const { invoke } = await import('@tauri-apps/api/core');
+    return invoke('get_dependency_manager_status', { customPath });
+  }
+
+  async installProjectDependencies(projectRoot: string, customPath?: string): Promise<any> {
+    const { invoke } = await import('@tauri-apps/api/core');
+    return invoke('install_project_dependencies', { projectRoot, customPath });
   }
 }
